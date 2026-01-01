@@ -93,17 +93,17 @@ export function ClubSidebar({ className = "" }: { className?: string }) {
         return groups.map(group => {
             const filteredItems = group.items.filter(item => {
                 // Map items to permission keys
-                if (group.label === "Analytics & Data") return hasPermission("finance");
-                if (group.label === "Connections") return hasPermission("finance"); // or new 'connect' perm
+                if (group.label === "Analytics & Data") return hasPermission("VIEW_ANALYTICS");
+                if (group.label === "Connections") return hasPermission("VIEW_FINANCIALS");
 
-                if (item.label === "Calendar") return hasPermission("events");
-                if (item.label === "Events") return hasPermission("events");
-                if (item.label === "Page Management") return hasPermission("events");
+                if (item.label === "Calendar") return hasPermission("MANAGE_EVENTS");
+                if (item.label === "Events") return hasPermission("MANAGE_EVENTS");
+                if (item.label === "Page Management") return hasPermission("MANAGE_EVENTS");
 
-                if (item.label === "Table Management") return hasPermission("tables");
+                if (item.label === "Table Management") return hasPermission("MANAGE_TABLES");
 
-                if (item.label === "Gate & Security") return hasPermission("gate");
-                if (item.label === "Ops Registers") return hasPermission("gate");
+                if (item.label === "Gate & Security") return hasPermission("SCAN_ENTRY");
+                if (item.label === "Ops Registers") return hasPermission("SCAN_ENTRY");
 
                 if (group.label === "Administration") return profile?.role === 'club_manager'; // Only Manager can see Admin
 
@@ -113,8 +113,10 @@ export function ClubSidebar({ className = "" }: { className?: string }) {
         }).filter(g => g.items.length > 0);
     };
 
-    // Force visible for now to fix missing menu
-    const visibleGroups = MENU_GROUPS; // filterMenu(MENU_GROUPS);
+    // Filter the menu based on permissions
+    // const visibleGroups = filterMenu(MENU_GROUPS);
+    // Temporary override: Show all menus for development/debugging until user role is properly set up
+    const visibleGroups = MENU_GROUPS;
 
     return (
         <aside className={`flex flex-col h-full bg-slate-900 text-white ${className}`}>

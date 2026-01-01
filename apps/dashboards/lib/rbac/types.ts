@@ -39,7 +39,7 @@ export const ROLE_PERMISSIONS: Record<StaffRole, Permission[]> = {
         'VIEW_GUESTLIST', 'SCAN_ENTRY', 'LOG_INCIDENTS'
     ],
     OPS_STAFF: [
-        'view_guestlist' // Minimal
+        'VIEW_GUESTLIST' // Minimal
     ] as Permission[]
 };
 
