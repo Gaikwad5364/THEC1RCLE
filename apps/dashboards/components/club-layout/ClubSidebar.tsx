@@ -71,52 +71,9 @@ const MENU_GROUPS = [
 
 export function ClubSidebar({ className = "" }: { className?: string }) {
     const pathname = usePathname();
-    const { signOut, profile } = useDashboardAuth();
+    const { signOut } = useDashboardAuth();
 
     const isActive = (path: string) => pathname === path;
-
-    // Define Permission Scope
-    // Manager has access to everything by default (permissions undefined or empty implies full access if role is manager)
-    // If permissions array exists, we filter.
-
-    // Mapping Permissions to Paths/Labels
-    const hasPermission = (required: string | null) => {
-        if (!profile) return false;
-        if (profile.role === 'club_manager') return true; // Super Admin for Club
-        if (!profile.permissions) return false; // Staff with no perms
-        // If checking generic access (null), return true
-        if (!required) return true;
-        return profile.permissions.includes(required);
-    };
-
-    const filterMenu = (groups: typeof MENU_GROUPS) => {
-        return groups.map(group => {
-            const filteredItems = group.items.filter(item => {
-                // Map items to permission keys
-                if (group.label === "Analytics & Data") return hasPermission("VIEW_ANALYTICS");
-                if (group.label === "Connections") return hasPermission("VIEW_FINANCIALS");
-
-                if (item.label === "Calendar") return hasPermission("MANAGE_EVENTS");
-                if (item.label === "Events") return hasPermission("MANAGE_EVENTS");
-                if (item.label === "Page Management") return hasPermission("MANAGE_EVENTS");
-
-                if (item.label === "Table Management") return hasPermission("MANAGE_TABLES");
-
-                if (item.label === "Gate & Security") return hasPermission("SCAN_ENTRY");
-                if (item.label === "Ops Registers") return hasPermission("SCAN_ENTRY");
-
-                if (group.label === "Administration") return profile?.role === 'club_manager'; // Only Manager can see Admin
-
-                return true; // Default visible (Dashboard etc)
-            });
-            return { ...group, items: filteredItems };
-        }).filter(g => g.items.length > 0);
-    };
-
-    // Filter the menu based on permissions
-    // const visibleGroups = filterMenu(MENU_GROUPS);
-    // Temporary override: Show all menus for development/debugging until user role is properly set up
-    const visibleGroups = MENU_GROUPS;
 
     return (
         <aside className={`flex flex-col h-full bg-slate-900 text-white ${className}`}>
@@ -128,34 +85,33 @@ export function ClubSidebar({ className = "" }: { className?: string }) {
                     </div>
                     <div>
                         <h1 className="font-bold text-lg tracking-tight">Tryst Mumbai</h1>
-                        <p className="text-xs text-slate-400 uppercase tracking-widest font-semibold">
-                            {profile?.role === 'club_manager' ? 'Club OS' : 'Staff Access'}
-                        </p>
+                        <p className="text-xs text-slate-400 uppercase tracking-widest font-semibold">Club OS</p>
                     </div>
                 </div>
             </div>
 
             {/* Nav */}
             <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-8 custom-scrollbar">
-                {visibleGroups.map((group, idx) => (
+                {MENU_GROUPS.map((group, idx) => (
                     <div key={idx}>
                         <h3 className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">
                             {group.label}
                         </h3>
                         <div className="space-y-1">
-                            {group.items.map((item, i) => {
+                            {group.items.map((item) => {
+                                const Icon = item.icon;
                                 const active = isActive(item.href);
                                 return (
                                     <Link
-                                        key={i}
+                                        key={item.href}
                                         href={item.href}
-                                        className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${active
-                                            ? "bg-indigo-600 text-white shadow-md shadow-indigo-900/20"
+                                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${active
+                                            ? "bg-indigo-600 text-white shadow-lg shadow-indigo-900/20"
                                             : "text-slate-400 hover:text-white hover:bg-slate-800"
                                             }`}
                                     >
-                                        <item.icon className={`h-4 w-4 ${active ? "text-indigo-200" : "text-slate-500 group-hover:text-slate-400"}`} />
-                                        {item.label}
+                                        <Icon className={`h-5 w-5 ${active ? "text-white" : "text-slate-500 group-hover:text-white"}`} />
+                                        <span className="text-sm font-medium">{item.label}</span>
                                     </Link>
                                 );
                             })}
@@ -164,23 +120,14 @@ export function ClubSidebar({ className = "" }: { className?: string }) {
                 ))}
             </nav>
 
-            {/* User Footer */}
-            <div className="p-4 border-t border-slate-800">
-                <div className="flex items-center gap-3 mb-4 px-2">
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-xs font-bold text-white uppercase">
-                        {profile?.email?.[0] || 'U'}
-                    </div>
-                    <div className="overflow-hidden">
-                        <p className="text-sm font-bold truncate">{profile?.email || 'User'}</p>
-                        <p className="text-xs text-slate-500 truncate capitalize">{profile?.role?.replace('_', ' ') || 'Staff'}</p>
-                    </div>
-                </div>
+            {/* Footer */}
+            <div className="p-4 border-t border-slate-800 bg-slate-900/50">
                 <button
                     onClick={() => signOut()}
-                    className="flex w-full items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
+                    className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors"
                 >
-                    <LogOut className="h-4 w-4" />
-                    Log Out
+                    <LogOut className="h-5 w-5" />
+                    <span className="text-sm font-medium">Log Out</span>
                 </button>
             </div>
         </aside>

@@ -15,10 +15,7 @@ interface DashboardProfile {
     uid: string;
     email: string;
     displayName: string;
-    role: "club_manager" | "host" | "promoter" | "staff" | "club_staff";
-
-    // Permissions (RBAC)
-    permissions?: string[];
+    role: "club_manager" | "host" | "promoter" | "staff";
 
     // Club-specific data
     clubId?: string;
@@ -67,11 +64,10 @@ export function DashboardAuthProvider({ children }: { children: ReactNode }) {
                             email: firebaseUser.email || "",
                             displayName: userData.displayName || userData.username || "User",
                             role: userData.role || "user",
-                            permissions: userData.permissions || [], // Map permissions
                         };
 
                         // If they are club staff, fetch club info
-                        if (userData.role === "club_manager" || userData.role === "staff" || userData.role === "club_staff") {
+                        if (userData.role === "club_manager" || userData.role === "staff") {
                             const clubId = userData.clubId;
                             if (clubId) {
                                 const clubDoc = await getDoc(doc(db, "venues", clubId));
